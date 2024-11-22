@@ -1,0 +1,71 @@
+/* Estilos globais */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #2c3e50;
+}
+
+/* Estilo do container */
+.container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #34495e;
+}
+
+/* Estilo das mensagens exibidas */
+.container p {
+    font-size: 1.2em;
+    color: #7f8c8d;
+}
+
+/* Estilos de resposta para diferentes ações */
+.container .action-message {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #3498db;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #2980b9;
+}
+
+.container .action-message.alterar {
+    color: #e74c3c;
+    border-color: #c0392b;
+}
+
+.container .action-message.pacientes {
+    color: #2ecc71;
+    border-color: #27ae60;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .container .action-message {
+        font-size: 1.2em;
+    }
+}

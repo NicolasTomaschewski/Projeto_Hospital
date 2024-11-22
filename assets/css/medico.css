@@ -1,0 +1,112 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Mudei para flex-start para evitar que o calendário fique centralizado verticalmente */
+    min-height: 100vh; /* Garante que o corpo preencha a altura da janela */
+    margin: 0;
+    padding: 20px; /* Adicionei um padding para dar espaço */
+    flex-direction: column;
+}
+
+.calendario-container {
+    width: 100%;
+    max-width: 800px; /* Diminuí a largura máxima */
+    text-align: center;
+    background: white; /* Fundo branco para o container */
+    border-radius: 8px; /* Arredondamento das bordas */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra para dar profundidade */
+    padding: 20px; /* Adicionei padding interno */
+}
+
+h2 {
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px; /* Reduzi o espaço entre os dias da semana */
+    margin-bottom: 10px;
+}
+
+.dia-semana {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 8px; /* Reduzi o padding */
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px; /* Reduzi o espaço entre os dias */
+}
+
+.dia {
+    background-color: white;
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 15px; /* Reduzi o padding */
+    font-size: 16px; /* Diminuí a fonte para ser mais compacta */
+    position: relative;
+    border-radius: 5px;
+    height: 80px; /* Reduzi a altura */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.dia.expandido {
+    grid-column: span 7; /* Expande para ocupar toda a largura */
+    height: 200px; /* Diminuí a altura expandida */
+    font-size: 20px; /* Diminuí o tamanho da fonte expandida */
+    background-color: #e0f7fa;
+}
+
+.dia.vazio {
+    visibility: hidden; /* Mantém células vazias invisíveis */
+}
+
+.dia-hoje {
+    border: 2px solid red;
+}
+
+.dia-hoje-mes-futuro {
+    border: 1px solid orange;
+    background-color: #fce4ec;
+}
+
+.navigation {
+    margin-top: 15px; /* Adicionei margem superior */
+}
+
+button {
+    padding: 8px 15px; /* Reduzi o padding */
+    margin: 5px;
+    font-size: 14px; /* Diminuí o tamanho da fonte */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.tarefas {
+    font-size: 12px; /* Tamanho da fonte do texto */
+    color: #666; /* Cor do texto */
+    margin-top: 5px; /* Margem acima do texto */
+    text-align: center; /* Centraliza o texto */
+}
