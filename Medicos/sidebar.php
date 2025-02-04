@@ -27,7 +27,7 @@ include '../conexao.php';
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
-        <a class="nav-link" href="tables.php">
+        <a class="nav-link" href="agenda.php">
             <i class="fas fa-fw fa-table"></i>
             <span>Agenda de Operações</span></a>
     </li>

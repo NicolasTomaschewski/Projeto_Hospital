@@ -27,14 +27,14 @@ include '../conexao.php';
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
-        <a class="nav-link" href="tables.php">
+        <a class="nav-link" href="agenda.php">
             <i class="fas fa-fw fa-table"></i>
             <span>Operações Agendadas</span></a>
     </li>
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
-        <a class="nav-link" href="historico.php">
+        <a class="nav-link" href="resultados.php">
             <i class="fas fa-fw fa-table"></i>
             <span>Resultados</span></a>
     </li>

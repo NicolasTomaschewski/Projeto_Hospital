@@ -27,21 +27,21 @@ include '../conexao.php';
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
-        <a class="nav-link" href="tables.php">
+        <a class="nav-link" href="medicos.php">
             <i class="fas fa-fw fa-chart-area"></i>
             <span>Médicos</span></a>
     </li>
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
-        <a class="nav-link" href="cadastrarpaciente.php">
+        <a class="nav-link" href="paciente.php">
             <i class="fas fa-fw fa-table"></i>
             <span>Pacientes</span></a>
     </li>
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
-        <a class="nav-link" href="cadastroadm.php">
+        <a class="nav-link" href="administradores.php">
             <i class="fas fa-fw fa-chart-area"></i>
             <span>Administradores</span></a>
     </li>
@@ -51,14 +51,14 @@ include '../conexao.php';
 
     <!-- Nav Item - Charts -->
     <li class="nav-item">
-        <a class="nav-link" href="agendar.php">
+        <a class="nav-link" href="operacoes.php">
             <i class="fas fa-fw fa-table"></i>
             <span>Agendar Operação</span></a>
     </li>
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
-        <a class="nav-link" href="historico.php">
+        <a class="nav-link" href="resultados.php">
             <i class="fas fa-fw fa-chart-area"></i>
             <span>Resultados de Operações</span></a>
     </li>
