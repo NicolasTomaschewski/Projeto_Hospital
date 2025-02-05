@@ -1,6 +1,7 @@
 <?php
 include '../conexao.php';
 ?>
+
 <!-- Sidebar -->
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
@@ -34,7 +35,7 @@ include '../conexao.php';
 
     <!-- Nav Item - Tables -->
     <li class="nav-item">
-        <a class="nav-link" href="paciente.php">
+        <a class="nav-link" href="pacientes.php">
             <i class="fas fa-fw fa-table"></i>
             <span>Pacientes</span></a>
     </li>
