@@ -12,7 +12,9 @@
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -41,69 +43,91 @@
                             <h4 class="m-0 font-weight-bold text-primary">CRUD Pacientes</h4>
                         </div>
                         <div class="card-body">
-                        <?php
+                            <?php
                             include 'conexao.php';
 
-                            // Função de Criação (Adicionar novo médico)
+                            // Função de Criação (Adicionar novo paciente)
                             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add'])) {
                                 $nome = $_POST['nome'];
                                 $cpf = $_POST['cpf'];
-                                $sql = "INSERT INTO Pacientes (nome, cpf, senha) VALUES ('$nome', '$cpf', md5($cpf))";
-                                if ($conn->query($sql) === TRUE) {
-                                    echo "<div class='alert alert-success'>Novo médico adicionado com sucesso!</div>";
+
+                                $sql = "INSERT INTO Pacientes (nome, cpf, senha) VALUES (?, ?, md5(?))";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("sss", $nome, $cpf, $cpf);
+
+                                if ($stmt->execute()) {
+                                    echo "<div class='alert alert-success'>Novo paciente adicionado com sucesso!</div>";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Erro ao adicionar: " . $conn->error . "</div>";
+                                    echo "<div class='alert alert-danger'>Erro ao adicionar: " . $stmt->error . "</div>";
                                 }
+                                $stmt->close();
                             }
 
-                            // Função de Atualização (Editar médico)
+                            // Função de Atualização (Editar paciente)
                             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit'])) {
                                 $id_paciente = $_POST['id_paciente'];
                                 $nome = $_POST['nome'];
                                 $cpf = $_POST['cpf'];
-                                $sql = "UPDATE Pacientes SET nome='$nome', cpf='$cpf' WHERE id_paciente='$id_paciente'";
-                                if ($conn->query($sql) === TRUE) {
+
+                                $sql = "UPDATE Pacientes SET nome=?, cpf=? WHERE id_paciente=?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("ssi", $nome, $cpf, $id_paciente);
+
+                                if ($stmt->execute()) {
                                     echo "<div class='alert alert-success'>Dados atualizados com sucesso!</div>";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Erro ao atualizar: " . $conn->error . "</div>";
+                                    echo "<div class='alert alert-danger'>Erro ao atualizar: " . $stmt->error . "</div>";
                                 }
+                                $stmt->close();
                             }
 
-                            // Função de Exclusão (Excluir médico)
+                            // Função de Exclusão (Excluir paciente)
                             if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['delete_id'])) {
                                 $id_paciente = $_GET['delete_id'];
-                                $sql = "DELETE FROM Pacientes WHERE id_paciente='$id_paciente'";
-                                if ($conn->query($sql) === TRUE) {
-                                    echo "<div class='alert alert-success'>Médico excluído com sucesso!</div>";
+
+                                $sql = "DELETE FROM Pacientes WHERE id_paciente=?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $id_paciente);
+
+                                if ($stmt->execute()) {
+                                    echo "<div class='alert alert-success'>Paciente excluído com sucesso!</div>";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Erro ao excluir: " . $conn->error . "</div>";
+                                    echo "<div class='alert alert-danger'>Erro ao excluir: " . $stmt->error . "</div>";
                                 }
+                                $stmt->close();
                             }
 
-                            // Formulários para criar ou editar médicos
+                            // Formulários para criar ou editar pacientes
                             if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id_paciente'])) {
                                 $id_paciente = $_GET['id_paciente'];
-                                $sql = "SELECT * FROM Pacientes WHERE id_paciente='$id_paciente'";
-                                $result = $conn->query($sql);
+
+                                $sql = "SELECT * FROM Pacientes WHERE id_paciente=?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $id_paciente);
+                                $stmt->execute();
+                                $result = $stmt->get_result();
                                 $paciente = $result->fetch_assoc();
-                            ?>
+                                $stmt->close();
+                                ?>
                                 <!-- Formulário de edição -->
                                 <h3>Editar Paciente</h3>
                                 <form method="POST" action="">
                                     <input type="hidden" name="id_paciente" value="<?= $paciente['id_paciente'] ?>">
                                     <div class="form-group">
                                         <label>Nome</label>
-                                        <input type="text" name="nome" class="form-control" value="<?= $paciente['nome'] ?>" required>
+                                        <input type="text" name="nome" class="form-control" value="<?= $paciente['nome'] ?>"
+                                            required>
                                     </div>
                                     <div class="form-group">
                                         <label>CPF</label>
-                                        <input type="text" name="cpf" class="form-control" value="<?= $paciente['cpf'] ?>" required>
+                                        <input type="text" name="cpf" class="form-control" value="<?= $paciente['cpf'] ?>"
+                                            required>
                                     </div>
                                     <input type="submit" name="edit" class="btn btn-primary" value="Atualizar Paciente">
                                 </form>
-                            <?php
+                                <?php
                             } else {
-                            ?>
+                                ?>
                                 <!-- Formulário de criação -->
                                 <h3>Criar Novo Paciente</h3>
                                 <form method="POST" action="">
@@ -117,7 +141,7 @@
                                     </div>
                                     <input type="submit" name="add" class="btn btn-primary" value="Adicionar Paciente">
                                 </form>
-                            <?php
+                                <?php
                             }
 
                             // Função de Leitura (Listar médicos)

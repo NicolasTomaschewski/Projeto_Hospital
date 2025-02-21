@@ -30,93 +30,94 @@
     <!-- Page Wrapper -->
     <div id="wrapper">
 
-    <?php
-include 'sidebar.php';
-?>
+        <?php
+        include 'sidebar.php';
+        ?>
 
-<!-- Content Wrapper -->
-<div id="content-wrapper" class="d-flex flex-column">
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
 
-    <!-- Main Content -->
-    <div id="content">
+            <!-- Main Content -->
+            <div id="content">
 
-        <?php include 'topbar.php'; ?>
+                <?php include 'topbar.php'; ?>
 
-        <!-- Begin Page Content -->
-        <div class="container-fluid">
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
 
-            <!-- Page Heading -->
-            <h1 class="h3 mb-2 text-gray-800">Resultados</h1>
-            <p class="mb-4">Histórico de operações realizadas, filtrando resultados liberados.</p>
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">Resultados</h1>
+                    <p class="mb-4">Histórico de operações realizadas, filtrando resultados liberados.</p>
 
-            <?php
-            // Configurações de conexão com o banco de dados
-            include '../conexao.php';
-            session_start();
+                    <?php
+                    // Configurações de conexão com o banco de dados
+                    include '../conexao.php';
+                    session_start();
 
-            // Exibindo a tabela de operações
-            echo "<table border='1'>
-                <tr>
-                    <th>ID</th>
-                    <th>Médico</th>
-                    <th>Paciente</th>
-                    <th>Sala</th>
-                    <th>Data Agendamento</th>
-                    <th>Data Operação</th>
-                    <th>Hora</th>
-                    <th>Operação</th>
-                    <th>Baixar Resultado</th>
-                </tr>";
+                    // Verificar se o paciente está logado
+                    if (!isset($_SESSION['id_paciente'])) {
+                        echo "Você precisa estar logado para ver seus resultados.";
+                        exit();
+                    }
 
-            // Consulta para obter registros onde "liberado" seja "1" (liberado)
-            $sql = "SELECT o.id_operacao, o.sala, o.data_agendamento, o.data_operacao, o.hora, 
-                            o.nome_operacao, o.liberado, m.nome AS medico, p.nome AS paciente
-                    FROM Operacoes o
-                    JOIN Medicos m ON o.id_medico = m.id_medico
-                    JOIN Pacientes p ON o.id_paciente = p.id_paciente
-                    WHERE o.liberado = '1'";
+                    // Obter o ID do paciente logado
+                    $id_paciente_logado = $_SESSION['id_paciente'];
 
-            $result = $conn->query($sql);
+                    // Exibindo a tabela de operações
+                    echo "<table border='1'>
+    <tr>
+        <th>ID</th>
+        <th>Médico</th>
+        <th>Paciente</th>
+        <th>Sala</th>
+        <th>Data Agendamento</th>
+        <th>Data Operação</th>
+        <th>Hora</th>
+        <th>Operação</th>
+        <th>Baixar Resultado</th>
+    </tr>";
 
-            if ($result->num_rows > 0) {
-                // Iterando sobre os registros filtrados
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>
-                        <td>" . $row["id_operacao"] . "</td>
-                        <td>" . $row["medico"] . "</td>
-                        <td>" . $row["paciente"] . "</td>
-                        <td>" . $row["sala"] . "</td>
-                        <td>" . $row["data_agendamento"] . "</td>
-                        <td>" . $row["data_operacao"] . "</td>
-                        <td>" . $row["hora"] . "</td>
-                        <td>" . $row["nome_operacao"] . "</td>
-                        <td>
-                            <form action='gerar_pdf.php' method='POST' target='_blank'>
-                                <input type='hidden' name='id_operacao' value='" . $row["id_operacao"] . "'>
-                                <button type='submit' class='btn btn-primary'>Gerar PDF</button>
-                            </form>
-                        </td>
-                    </tr>";
-                }
-            } else {
-                echo "<tr><td colspan='9'>Nenhuma operação liberada.</td></tr>";
-            }
+                    // Consulta para obter registros onde "liberado" seja "1" e o paciente seja o logado
+                    $sql = "SELECT o.id_operacao, o.sala, o.data_agendamento, o.data_operacao, o.hora, 
+                o.nome_operacao, o.liberado, m.nome AS medico, p.nome AS paciente
+        FROM Operacoes o
+        JOIN Medicos m ON o.id_medico = m.id_medico
+        JOIN Pacientes p ON o.id_paciente = p.id_paciente
+        WHERE o.liberado = '1' AND p.id_paciente = '$id_paciente_logado'";
 
-            echo "</table>";
+                    $result = $conn->query($sql);
 
-            // Fechando a conexão
-            $conn->close();
-            ?>
+                    if ($result->num_rows > 0) {
+                        // Iterando sobre os registros filtrados
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr>
+            <td>" . $row["id_operacao"] . "</td>
+            <td>" . $row["medico"] . "</td>
+            <td>" . $row["paciente"] . "</td>
+            <td>" . $row["sala"] . "</td>
+            <td>" . $row["data_agendamento"] . "</td>
+            <td>" . $row["data_operacao"] . "</td>
+            <td>" . $row["hora"] . "</td>
+            <td>" . $row["nome_operacao"] . "</td>
+            <td>
+                <form action='gerar_pdf.php' method='POST' target='_blank'>
+                    <input type='hidden' name='id_operacao' value='" . $row["id_operacao"] . "'>
+                    <button type='submit' class='btn btn-primary'>Gerar PDF</button>
+                </form>
+            </td>
+        </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='9'>Nenhuma operação liberada.</td></tr>";
+                    }
 
-        </div>
-        <!-- /.container-fluid -->
+                    echo "</table>";
+                    ?>
 
-    </div>
-    <!-- End of Main Content -->
-
-</div>
-<!-- End of Content Wrapper -->
-
+                    <?php
+                    // Fechando a conexão
+                    $conn->close();
+                    ?>
 
                 </div>
                 <!-- /.container-fluid -->
@@ -124,19 +125,29 @@ include 'sidebar.php';
             </div>
             <!-- End of Main Content -->
 
-
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2020</span>
-                    </div>
-                </div>
-            </footer>
-            <!-- End of Footer -->
-
         </div>
         <!-- End of Content Wrapper -->
+
+
+    </div>
+    <!-- /.container-fluid -->
+
+    </div>
+    <!-- End of Main Content -->
+
+
+    <!-- Footer -->
+    <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span>Copyright &copy; Your Website 2020</span>
+            </div>
+        </div>
+    </footer>
+    <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
 
     </div>
     <!-- End of Page Wrapper -->

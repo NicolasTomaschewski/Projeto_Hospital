@@ -12,7 +12,9 @@
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -44,66 +46,88 @@
                             <?php
                             include 'conexao.php';
 
-                            // Função de Criação (Adicionar novo médico)
+                            // Função de Criação (Adicionar novo administrador)
                             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add'])) {
                                 $nome = $_POST['nome'];
                                 $matricula = $_POST['matricula'];
-                                $sql = "INSERT INTO Administradores (nome, matricula, senha) VALUES ('$nome', '$matricula', md5($matricula))";
-                                if ($conn->query($sql) === TRUE) {
-                                    echo "<div class='alert alert-success'>Novo médico adicionado com sucesso!</div>";
+
+                                $sql = "INSERT INTO Administradores (nome, matricula, senha) VALUES (?, ?, md5(?))";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("sss", $nome, $matricula, $matricula);
+
+                                if ($stmt->execute()) {
+                                    echo "<div class='alert alert-success'>Novo administrador adicionado com sucesso!</div>";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Erro ao adicionar: " . $conn->error . "</div>";
+                                    echo "<div class='alert alert-danger'>Erro ao adicionar: " . $stmt->error . "</div>";
                                 }
+                                $stmt->close();
                             }
 
-                            // Função de Atualização (Editar médico)
+                            // Função de Atualização (Editar administrador)
                             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit'])) {
                                 $id_administrador = $_POST['id_administrador'];
                                 $nome = $_POST['nome'];
                                 $matricula = $_POST['matricula'];
-                                $sql = "UPDATE Admnistradores SET nome='$nome', matricula='$matricula' WHERE id_administrador='$id_administrador'";
-                                if ($conn->query($sql) === TRUE) {
+
+                                $sql = "UPDATE Administradores SET nome=?, matricula=? WHERE id_administrador=?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("ssi", $nome, $matricula, $id_administrador);
+
+                                if ($stmt->execute()) {
                                     echo "<div class='alert alert-success'>Dados atualizados com sucesso!</div>";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Erro ao atualizar: " . $conn->error . "</div>";
+                                    echo "<div class='alert alert-danger'>Erro ao atualizar: " . $stmt->error . "</div>";
                                 }
+                                $stmt->close();
                             }
 
-                            // Função de Exclusão (Excluir médico)
+                            // Função de Exclusão (Excluir administrador)
                             if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['delete_id'])) {
                                 $id_administrador = $_GET['delete_id'];
-                                $sql = "DELETE FROM Administradores WHERE id_administrador='$id_administrador'";
-                                if ($conn->query($sql) === TRUE) {
-                                    echo "<div class='alert alert-success'>Médico excluído com sucesso!</div>";
+
+                                $sql = "DELETE FROM Administradores WHERE id_administrador=?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $id_administrador);
+
+                                if ($stmt->execute()) {
+                                    echo "<div class='alert alert-success'>Administrador excluído com sucesso!</div>";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Erro ao excluir: " . $conn->error . "</div>";
+                                    echo "<div class='alert alert-danger'>Erro ao excluir: " . $stmt->error . "</div>";
                                 }
+                                $stmt->close();
                             }
 
-                            // Formulários para criar ou editar médicos
+                            // Formulários para criar ou editar administradores
                             if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id_administrador'])) {
                                 $id_administrador = $_GET['id_administrador'];
-                                $sql = "SELECT * FROM Administradores WHERE id_administrador='$id_administrador'";
-                                $result = $conn->query($sql);
+                                $sql = "SELECT * FROM Administradores WHERE id_administrador=?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $id_administrador);
+                                $stmt->execute();
+                                $result = $stmt->get_result();
                                 $administrador = $result->fetch_assoc();
-                            ?>
+                                $stmt->close();
+                                ?>
                                 <!-- Formulário de edição -->
                                 <h3>Editar Médico</h3>
                                 <form method="POST" action="">
-                                    <input type="hidden" name="id_administrador" value="<?= $administrador['id_administrador'] ?>">
+                                    <input type="hidden" name="id_administrador"
+                                        value="<?= $administrador['id_administrador'] ?>">
                                     <div class="form-group">
                                         <label>Nome</label>
-                                        <input type="text" name="nome" class="form-control" value="<?= $administrador['nome'] ?>" required>
+                                        <input type="text" name="nome" class="form-control"
+                                            value="<?= $administrador['nome'] ?>" required>
                                     </div>
                                     <div class="form-group">
                                         <label>matricula</label>
-                                        <input type="text" name="matricula" class="form-control" value="<?= $administrador['matricula'] ?>" required>
+                                        <input type="text" name="matricula" class="form-control"
+                                            value="<?= $administrador['matricula'] ?>" required>
                                     </div>
                                     <input type="submit" name="edit" class="btn btn-primary" value="Atualizar Médico">
                                 </form>
-                            <?php
+                                <?php
                             } else {
-                            ?>
+                                ?>
                                 <!-- Formulário de criação -->
                                 <h3>Criar Novo Médico</h3>
                                 <form method="POST" action="">
@@ -112,12 +136,12 @@
                                         <input type="text" name="nome" class="form-control" required>
                                     </div>
                                     <div class="form-group">
-                                        <label>matricula</label>
+                                        <label>Matricula</label>
                                         <input type="text" name="matricula" class="form-control" required>
                                     </div>
                                     <input type="submit" name="add" class="btn btn-primary" value="Adicionar Médico">
                                 </form>
-                            <?php
+                                <?php
                             }
 
                             // Função de Leitura (Listar médicos)

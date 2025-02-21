@@ -12,7 +12,9 @@
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -48,12 +50,17 @@
                             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add'])) {
                                 $nome = $_POST['nome'];
                                 $crm = $_POST['crm'];
-                                $sql = "INSERT INTO Medicos (nome, crm, senha) VALUES ('$nome', '$crm', md5($crm))";
-                                if ($conn->query($sql) === TRUE) {
+
+                                $sql = "INSERT INTO Medicos (nome, crm, senha) VALUES (?, ?, md5(?))";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("sss", $nome, $crm, $crm);
+
+                                if ($stmt->execute()) {
                                     echo "<div class='alert alert-success'>Novo médico adicionado com sucesso!</div>";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Erro ao adicionar: " . $conn->error . "</div>";
+                                    echo "<div class='alert alert-danger'>Erro ao adicionar: " . $stmt->error . "</div>";
                                 }
+                                $stmt->close();
                             }
 
                             // Função de Atualização (Editar médico)
@@ -61,49 +68,66 @@
                                 $id_medico = $_POST['id_medico'];
                                 $nome = $_POST['nome'];
                                 $crm = $_POST['crm'];
-                                $sql = "UPDATE Medicos SET nome='$nome', crm='$crm' WHERE id_medico='$id_medico'";
-                                if ($conn->query($sql) === TRUE) {
+
+                                $sql = "UPDATE Medicos SET nome=?, crm=? WHERE id_medico=?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("ssi", $nome, $crm, $id_medico);
+
+                                if ($stmt->execute()) {
                                     echo "<div class='alert alert-success'>Dados atualizados com sucesso!</div>";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Erro ao atualizar: " . $conn->error . "</div>";
+                                    echo "<div class='alert alert-danger'>Erro ao atualizar: " . $stmt->error . "</div>";
                                 }
+                                $stmt->close();
                             }
 
                             // Função de Exclusão (Excluir médico)
                             if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['delete_id'])) {
                                 $id_medico = $_GET['delete_id'];
-                                $sql = "DELETE FROM Medicos WHERE id_medico='$id_medico'";
-                                if ($conn->query($sql) === TRUE) {
+
+                                $sql = "DELETE FROM Medicos WHERE id_medico=?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $id_medico);
+
+                                if ($stmt->execute()) {
                                     echo "<div class='alert alert-success'>Médico excluído com sucesso!</div>";
                                 } else {
-                                    echo "<div class='alert alert-danger'>Erro ao excluir: " . $conn->error . "</div>";
+                                    echo "<div class='alert alert-danger'>Erro ao excluir: " . $stmt->error . "</div>";
                                 }
+                                $stmt->close();
                             }
 
                             // Formulários para criar ou editar médicos
                             if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['id_medico'])) {
                                 $id_medico = $_GET['id_medico'];
-                                $sql = "SELECT * FROM Medicos WHERE id_medico='$id_medico'";
-                                $result = $conn->query($sql);
+
+                                $sql = "SELECT * FROM Medicos WHERE id_medico=?";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $id_medico);
+                                $stmt->execute();
+                                $result = $stmt->get_result();
                                 $medico = $result->fetch_assoc();
-                            ?>
+                                $stmt->close();
+                                ?>
                                 <!-- Formulário de edição -->
                                 <h3>Editar Médico</h3>
                                 <form method="POST" action="">
                                     <input type="hidden" name="id_medico" value="<?= $medico['id_medico'] ?>">
                                     <div class="form-group">
                                         <label>Nome</label>
-                                        <input type="text" name="nome" class="form-control" value="<?= $medico['nome'] ?>" required>
+                                        <input type="text" name="nome" class="form-control" value="<?= $medico['nome'] ?>"
+                                            required>
                                     </div>
                                     <div class="form-group">
                                         <label>CRM</label>
-                                        <input type="text" name="crm" class="form-control" value="<?= $medico['crm'] ?>" required>
+                                        <input type="text" name="crm" class="form-control" value="<?= $medico['crm'] ?>"
+                                            required>
                                     </div>
                                     <input type="submit" name="edit" class="btn btn-primary" value="Atualizar Médico">
                                 </form>
-                            <?php
+                                <?php
                             } else {
-                            ?>
+                                ?>
                                 <!-- Formulário de criação -->
                                 <h3>Criar Novo Médico</h3>
                                 <form method="POST" action="">
@@ -117,7 +141,7 @@
                                     </div>
                                     <input type="submit" name="add" class="btn btn-primary" value="Adicionar Médico">
                                 </form>
-                            <?php
+                                <?php
                             }
 
                             // Função de Leitura (Listar médicos)

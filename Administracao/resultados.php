@@ -12,7 +12,9 @@
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -21,7 +23,7 @@
 <body id="page-top">
     <div id="wrapper">
         <?php include 'sidebar.php'; ?>
-        
+
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <?php include 'topbar.php'; ?>
@@ -31,11 +33,12 @@
                         <div class="card-header py-3">
                             <h4 class="m-0 font-weight-bold text-primary">Liberar Resultados para Pacientes</h4>
                         </div>
-                        <div class="card-body" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
+                        <div class="card-body"
+                            style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
                             <?php
                             // Configurações de conexão com o banco de dados
                             include 'conexao.php';
-                            
+
                             // Função para alternar o status de liberação
                             if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['toggle_id'])) {
                                 $id_operacao = $_POST['toggle_id'];
@@ -45,12 +48,14 @@
                                 if ($conn->query($sql) === TRUE) {
                                     header("Location: " . $_SERVER['PHP_SELF']);
                                     ?>
-                                    <div class="card-body" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
+                                    <div class="card-body"
+                                        style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
                                         <div>
                                             <h1>Status de resultado alterado</h1>
                                         </div>
                                         <div>
-                                            <a href="historico.php" class="btn btn-secondary" style="background-color: #4e73df; color: white; text-decoration: none; padding: 10px 20px; display: inline-block;">Voltar</a>
+                                            <a href="resultados.php" class="btn btn-secondary"
+                                                style="background-color: #4e73df; color: white; text-decoration: none; padding: 10px 20px; display: inline-block;">Voltar</a>
                                         </div>
                                     </div>
                                     <?php
@@ -73,7 +78,7 @@
                                         <th>Operação</th>
                                         <th>Liberado</th>
                                     </tr>";
-                            
+
                             $sql = "SELECT o.id_operacao, o.sala, o.data_agendamento, o.data_operacao, o.hora, o.nome_operacao, o.liberado,
                                         m.nome AS medico, p.nome AS paciente
                                     FROM Operacoes o
@@ -139,4 +144,5 @@
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
 </body>
+
 </html>

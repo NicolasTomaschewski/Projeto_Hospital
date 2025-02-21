@@ -49,12 +49,14 @@
                         <div class="card-header py-3">
                             <h4 class="m-0 font-weight-bold text-primary">Agenda de Operações</h4>
                         </div>
-                        <div class="card-body" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
-                        <?php
+                        <div class="card-body"
+                            style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
+                            <?php
                             include '../conexao.php';
 
                             // Função para redirecionar após a ação
-                            function redirecionar() {
+                            function redirecionar()
+                            {
                                 header("Location: " . $_SERVER['PHP_SELF']);
                                 exit();
                             }
@@ -70,20 +72,23 @@
                                 $nome_operacao = $_POST['nome_operacao'];
                                 $liberado = isset($_POST['liberado']) ? 1 : 0;
 
+                                // Query com prepared statements
                                 $sql = "INSERT INTO Operacoes (id_medico, id_paciente, sala, data_agendamento, data_operacao, hora, nome_operacao, liberado) 
-                                        VALUES ('$id_medico', '$id_paciente', '$sala', '$data_agendamento', '$data_operacao', '$hora', '$nome_operacao', '$liberado')";
-                                if ($conn->query($sql) === TRUE) {
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("iisssssi", $id_medico, $id_paciente, $sala, $data_agendamento, $data_operacao, $hora, $nome_operacao, $liberado);
+
+                                if ($stmt->execute()) {
                                     echo "Nova operação agendada com sucesso!<br>";
-                                    ?>
-                                    <div class="card-body" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
-                                        <a href="agendar.php" class="btn btn-secondary" style="background-color: #4e73df; color: white; text-decoration: none; padding: 10px 20px; display: inline-block;">Voltar</a>
-                                    </div>
-                                    <?php
                                     redirecionar();
                                 } else {
-                                    echo "Erro ao adicionar: " . $conn->error . "<br>";
+                                    echo "Erro ao adicionar: " . $stmt->error . "<br>";
                                 }
+
+                                $stmt->close();
                             }
+
 
                             // 2. Leitura (Listar operações)
                             if ($_SERVER["REQUEST_METHOD"] == "GET" && !isset($_GET['id_operacao'])) {
@@ -143,21 +148,23 @@
                                 $nome_operacao = $_POST['nome_operacao'];
                                 $liberado = isset($_POST['liberado']) ? 1 : 0;
 
-                                $sql = "UPDATE Operacoes SET id_medico='$id_medico', id_paciente='$id_paciente', sala='$sala', 
-                                        data_agendamento='$data_agendamento', data_operacao='$data_operacao', hora='$hora', 
-                                        nome_operacao='$nome_operacao', liberado='$liberado' WHERE id_operacao='$id_operacao'";
-                                if ($conn->query($sql) === TRUE) {
+                                // Query com prepared statements
+                                $sql = "UPDATE Operacoes SET id_medico=?, id_paciente=?, sala=?, data_agendamento=?, data_operacao=?, hora=?, nome_operacao=?, liberado=? 
+                                        WHERE id_operacao=?";
+
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("iisssssii", $id_medico, $id_paciente, $sala, $data_agendamento, $data_operacao, $hora, $nome_operacao, $liberado, $id_operacao);
+
+                                if ($stmt->execute()) {
                                     echo "Dados da operação atualizados com sucesso!<br>";
-                                    ?>
-                                    <div class="card-body" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
-                                        <a href="agendar.php" class="btn btn-secondary" style="background-color: #4e73df; color: white; text-decoration: none; padding: 10px 20px; display: inline-block;">Voltar</a>
-                                    </div>
-                                    <?php
                                     redirecionar();
                                 } else {
-                                    echo "Erro ao atualizar: " . $conn->error . "<br>";
+                                    echo "Erro ao atualizar: " . $stmt->error . "<br>";
                                 }
+
+                                $stmt->close();
                             }
+
 
                             // 4. Exclusão (Excluir operação)
                             if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['delete_id'])) {
@@ -167,8 +174,10 @@
                                 if ($conn->query($sql) === TRUE) {
                                     echo "Operação excluída com sucesso!<br>";
                                     ?>
-                                    <div class="card-body" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
-                                        <a href="agendar.php" class="btn btn-secondary" style="background-color: #4e73df; color: white; text-decoration: none; padding: 10px 20px; display: inline-block;">Voltar</a>
+                                    <div class="card-body"
+                                        style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px;">
+                                        <a href="operacoes.php" class="btn btn-secondary"
+                                            style="background-color: #4e73df; color: white; text-decoration: none; padding: 10px 20px; display: inline-block;">Voltar</a>
                                     </div>
                                     <?php
                                     redirecionar();
@@ -186,63 +195,64 @@
 
                                 echo "<h3>Editar Operação</h3>";
                                 echo "<form method='POST' action=''>
-                                        <input type='hidden' name='id_operacao' value='" . $operacao['id_operacao'] . "'>
-                                        Nome da Operação: <input type='text' name='nome_operacao' value='" . $operacao['nome_operacao'] . "' required><br>
-                                        Médico: <select name='id_medico' required>";
-                                
+            <input type='hidden' name='id_operacao' value='" . htmlspecialchars($operacao['id_operacao']) . "'>
+            Nome da Operação: <input type='text' name='nome_operacao' value='" . htmlspecialchars($operacao['nome_operacao']) . "' required><br>
+            Médico: <select name='id_medico' required>";
+
                                 $medicos = $conn->query("SELECT id_medico, nome FROM Medicos");
                                 while ($medico = $medicos->fetch_assoc()) {
                                     $selected = ($medico['id_medico'] == $operacao['id_medico']) ? 'selected' : '';
-                                    echo "<option value='" . $medico['id_medico'] . "' $selected>" . $medico['nome'] . "</option>";
+                                    echo "<option value='" . htmlspecialchars($medico['id_medico']) . "' $selected>" . htmlspecialchars($medico['nome']) . "</option>";
                                 }
 
                                 echo "</select><br>Paciente: <select name='id_paciente' required>";
                                 $pacientes = $conn->query("SELECT id_paciente, nome FROM Pacientes");
                                 while ($paciente = $pacientes->fetch_assoc()) {
                                     $selected = ($paciente['id_paciente'] == $operacao['id_paciente']) ? 'selected' : '';
-                                    echo "<option value='" . $paciente['id_paciente'] . "' $selected>" . $paciente['nome'] . "</option>";
+                                    echo "<option value='" . htmlspecialchars($paciente['id_paciente']) . "' $selected>" . htmlspecialchars($paciente['nome']) . "</option>";
                                 }
 
                                 echo "</select><br>
-                                    Sala: <input type='text' name='sala' value='" . $operacao['sala'] . "' required><br>
-                                    Data Agendamento: <input type='date' name='data_agendamento' value='" . $operacao['data_agendamento'] . "' required><br>
-                                    Data Operação: <input type='date' name='data_operacao' value='" . $operacao['data_operacao'] . "' required><br>
-                                    Hora: <input type='time' name='hora' value='" . $operacao['hora'] . "' required><br>
-                                    Liberado: <input type='checkbox' name='liberado' " . ($operacao['liberado'] ? "checked" : "") . "><br>
-                                    <input type='submit' name='edit' value='Atualizar Operação'>
-                                    </form>";
+        Sala: <input type='text' name='sala' value='" . htmlspecialchars($operacao['sala']) . "' required><br>
+        Data Agendamento: <input type='date' name='data_agendamento' value='" . htmlspecialchars($operacao['data_agendamento']) . "' required><br>
+        Data Operação: <input type='date' name='data_operacao' value='" . htmlspecialchars($operacao['data_operacao']) . "' required><br>
+        Hora: <input type='time' name='hora' value='" . htmlspecialchars($operacao['hora']) . "' required><br>
+        Liberado: <input type='checkbox' name='liberado' " . ($operacao['liberado'] ? "checked" : "") . "><br>
+        <input type='submit' name='edit' value='Atualizar Operação'>
+        </form>";
                             } else {
                                 ?>
                                 <h3 style="color: white;">Criar Nova Operação</h3>
                                 <?php
                                 echo "<form method='POST' action=''>
-                                        <div></div>
-                                        Nome da Operação: <input type='text' name='nome_operacao' required><br>
-                                        Médico: <select name='id_medico' required>";
-                                
+            <div></div>
+            Nome da Operação: <input type='text' name='nome_operacao' required><br>
+            Médico: <select name='id_medico' required>";
+
                                 $medicos = $conn->query("SELECT id_medico, nome FROM Medicos");
                                 while ($medico = $medicos->fetch_assoc()) {
-                                    echo "<option value='" . $medico['id_medico'] . "'>" . $medico['nome'] . "</option>";
+                                    echo "<option value='" . htmlspecialchars($medico['id_medico']) . "'>" . htmlspecialchars($medico['nome']) . "</option>";
                                 }
 
                                 echo "</select><br>Paciente: <select name='id_paciente' required>";
                                 $pacientes = $conn->query("SELECT id_paciente, nome FROM Pacientes");
                                 while ($paciente = $pacientes->fetch_assoc()) {
-                                    echo "<option value='" . $paciente['id_paciente'] . "'>" . $paciente['nome'] . "</option>";
+                                    echo "<option value='" . htmlspecialchars($paciente['id_paciente']) . "'>" . htmlspecialchars($paciente['nome']) . "</option>";
                                 }
 
                                 echo "</select><br>
-                                    Sala: <input type='text' name='sala' required><br>
-                                    Data Agendamento: <input type='date' name='data_agendamento' required><br>
-                                    Data Operação: <input type='date' name='data_operacao' required><br>
-                                    Hora: <input type='time' name='hora' required><br>
-                                    Liberado: <input type='checkbox' name='liberado'><br>
-                                    <input type='submit' name='add' value='Adicionar Operação'>
-                                    </form>";
+        Sala: <input type='text' name='sala' required><br>
+        Data Agendamento: <input type='date' name='data_agendamento' required><br>
+        Data Operação: <input type='date' name='data_operacao' required><br>
+        Hora: <input type='time' name='hora' required><br>
+        Liberado: <input type='checkbox' name='liberado'><br>
+        <input type='submit' name='add' value='Adicionar Operação'>
+        </form>";
                             }
 
+
                             $conn->close();
-                        ?>
+                            ?>
                         </div>
                     </div>
 
