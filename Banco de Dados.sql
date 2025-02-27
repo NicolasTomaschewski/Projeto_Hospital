@@ -130,10 +130,6 @@ LOCK TABLES `Pacientes` WRITE;
 INSERT INTO `Pacientes` VALUES (6,'Paciente 01','111','81dc9bdb52d04dc20036dbd8313ed055'),(7,'Paciente 02','222','bcbe3365e6ac95ea2c0343a2395834dd'),(8,'Paciente 03','333','310dcbbf4cce62f762a2aaa148d556bd'),(9,'Joana D\'arc','444','81dc9bdb52d04dc20036dbd8313ed055');
 /*!40000 ALTER TABLE `Pacientes` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping routines for database 'projeto_hospital'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -144,4 +140,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-20 21:51:44
+-- Dump completed on 2025-02-27 10:12:09
