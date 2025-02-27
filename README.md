@@ -29,7 +29,7 @@ Atualmente, o projeto possui algumas limitações que serão corrigidas nas pró
    ```bash
    git clone https://github.com/seu-usuario/sistema-hospitalar.git
    ```
-2. Configure o banco de dados MySQL e importe o arquivo `banco.sql`.
+2. Configure o banco de dados MySQL e importe o arquivo `Banco de Dados.sql`.
 3. Atualize as credenciais do banco no arquivo de configuração.
 4. Inicie um servidor local para rodar o PHP:
    ```bash
