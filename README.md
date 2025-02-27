@@ -37,10 +37,6 @@ Atualmente, o projeto possui algumas limitações que serão corrigidas nas pró
    ```
 5. Acesse `http://localhost:porta` no navegador.
 
-## 📜 Licença
-
-Este projeto é de código aberto e pode ser utilizado para aprendizado. Caso utilize partes do código, por favor, mencione a fonte. 😊
-
 ---
 
 🔗 **Conecte-se comigo no [LinkedIn](https://www.linkedin.com/in/seu-perfil/)** para conversar sobre tecnologia!
