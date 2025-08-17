@@ -1,18 +1,16 @@
-# Usa imagem oficial do PHP com Apache
-FROM php:8.1-apache
+FROM php:8.2-apache
 
-# Instala extensões do PHP
-RUN docker-php-ext-install pdo pdo_mysql mysqli
-
-# Ativa o mod_rewrite do Apache (importante para frameworks)
-RUN a2enmod rewrite
-
-# Copia arquivo de configuração customizado
-COPY apache.conf /etc/apache2/sites-available/000-default.conf
+# Instala mysqli
+RUN docker-php-ext-install mysqli
 
 # Copia os arquivos do projeto para o container
 COPY . /var/www/html/
 
-# Define permissões
-RUN chown -R www-data:www-data /var/www/html
+# Permissões corretas
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
+# Ativa mod_rewrite (se precisar de URLs amigáveis)
+RUN a2enmod rewrite
+
+EXPOSE 80
