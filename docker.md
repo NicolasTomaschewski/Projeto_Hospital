@@ -1,198 +1,111 @@
-## 🎯 Objetivo
+# Guia de Docker para Projeto Hospital
 
-Rodar localmente um projeto PHP (com ou sem MySQL) em **containers Docker**, utilizando:
-
-* `Dockerfile` para construir o ambiente PHP
-* `docker-compose` para orquestrar os serviços
-* Práticas como:
-
-  * Montagem de volumes para desenvolvimento
-  * Separação de arquivos de configuração
-  * Uso de `.env` para variáveis sensíveis
-  * Estrutura limpa e reaproveitável
-
----
-# Criar os arquivos necessários
+Este guia explica como parar, iniciar e copiar/importar o dump do banco de dados MySQL do projeto.
 
 ---
 
-## 📄 1. `.env`
+## 1️⃣ Parar os containers
 
-Crie um arquivo `.env`:
-
-```env
-APP_PORT=3030
-DB_NAME=meubanco
-DB_USER=root
-DB_PASSWORD=123456
-```
-
----
-
-## 📄 2. `Dockerfile`
-
-```Dockerfile
-# Usa imagem oficial do PHP com Apache
-FROM php:8.1-apache
-
-# Instala extensões do PHP
-RUN docker-php-ext-install pdo pdo_mysql mysqli
-
-# Ativa o mod_rewrite do Apache (importante para frameworks)
-RUN a2enmod rewrite
-
-# Copia arquivo de configuração customizado
-COPY apache.conf /etc/apache2/sites-available/000-default.conf
-
-# Copia os arquivos do projeto para o container
-COPY . /var/www/html/
-
-# Define permissões
-RUN chown -R www-data:www-data /var/www/html
-```
-
----
-
-## 📄 3. `apache.conf` (configuração do Apache)
-
-```apache
-<VirtualHost *:80>
-    DocumentRoot /var/www/html/public
-
-    <Directory /var/www/html/public>
-        AllowOverride All
-        Require all granted
-    </Directory>
-
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
-```
-
-> 📝 **Nota**: se você **não usa a pasta `public`**, mude `DocumentRoot` e o `<Directory>` para `/var/www/html`.
-
----
-
-## 📄 4. `docker-compose.yml`
-
-```yaml
-version: '3.8'
-
-services:
-  app:
-    build: .
-    container_name: php_app
-    ports:
-      - "${APP_PORT}:80"
-    volumes:
-      - .:/var/www/html
-    environment:
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-    depends_on:
-      - db
-
-  db:
-    image: mysql:8
-    container_name: mysql_db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-
-volumes:
-  db_data:
-```
-
----
-
-# 🚀 ETAPA 3 — Rodar o projeto
-
-Dentro da pasta do seu projeto, execute:
+### Parar sem remover volumes (mantém os dados do MySQL)
 
 ```bash
-# 1. Subir os containers
-docker compose up --build
+docker-compose down
 ```
 
-Aguarde a construção da imagem.
-Depois, acesse sua aplicação em:
-
-📍 `http://localhost:3030`
-
----
-
-# 🧼 ETAPA 4 — Boas práticas de mercado
-
-### ✅ Organização
-
-* Mantenha o código separado por função (`/public`, `/src`, `/config`)
-* Use `.env` para esconder senhas e configs variáveis
-* Ignore arquivos sensíveis com `.gitignore`
-
-### ✅ Segurança
-
-* Nunca envie `.env` para o GitHub
-* Em produção, não monte volumes diretamente (use imagens fixas)
-* Use usuário específico no MySQL (evite root)
-
-### ✅ Escalabilidade
-
-* Adicione um container `nginx` na frente se for necessário proxy reverso
-* Use `php-fpm` ao invés de Apache em produção para melhor performance
-* Configure logs (ex: enviar para Loki/Grafana depois)
-
----
-
-# 🧪 ETAPA 5 — Testar e depurar
-
-Para entrar no container e debugar:
+### Parar e remover volumes (apaga os dados do MySQL)
 
 ```bash
-docker exec -it php_app bash
+docker-compose down -v
 ```
 
-Para checar logs:
+> ⚠️ Use `-v` apenas se quiser resetar o banco.
+
+### Parar containers individualmente
 
 ```bash
-docker logs php_app
-docker logs mysql_db
+docker stop projeto_hospital_web projeto_hospital_db
 ```
 
 ---
 
-# 📦 ETAPA 6 — Encerrar containers
+## 2️⃣ Iniciar os containers
+
+### Subir todos os containers do projeto
 
 ```bash
-# Parar containers
-docker compose down
+docker-compose up -d
+```
 
-# Parar e limpar volumes
-docker compose down -v
+### Subir containers específicos
+
+```bash
+docker start projeto_hospital_web projeto_hospital_db
+```
+
+### Verificar containers em execução
+
+```bash
+docker ps
 ```
 
 ---
 
-## ✅ Conclusão
+## 3️⃣ Copiar e importar o dump do banco de dados
 
-Você agora tem um ambiente Dockerizado profissional rodando sua aplicação PHP, pronto para integrar com:
+Supondo que o dump se chama `Banco de Dados.sql` e está na pasta `mysql-conf`.
 
-* **Grafana + Loki** (logs)
-* **Grafana + Prometheus** (métricas)
-* **Grafana Cloud** (se quiser nuvem)
+### 3.1 Copiar o arquivo para o container MySQL
+
+```bash
+docker cp "./mysql-conf/Banco de Dados.sql" projeto_hospital_db:/tmp/banco_de_dados.sql
+```
+
+### 3.2 Entrar no container
+
+```bash
+docker exec -it projeto_hospital_db bash
+```
+
+### 3.3 Criar o banco se não existir
+
+```bash
+mysql -u root -p
+```
+
+* Senha: `rootpassword`
+
+```sql
+CREATE DATABASE IF NOT EXISTS projeto_hospital;
+EXIT;
+```
+
+### 3.4 Importar o dump
+
+Ainda dentro do terminal do container:
+
+```bash
+mysql -u root -p projeto_hospital < /tmp/banco_de_dados.sql
+```
+
+* Senha: `rootpassword`
+
+### 3.5 Conferir se as tabelas foram importadas
+
+```bash
+mysql -u root -p
+```
+
+```sql
+USE projeto_hospital;
+SHOW TABLES;
+```
+
+> Agora o banco está pronto e o `login.php` deve funcionar corretamente.
 
 ---
 
-Se quiser, posso expandir este setup e incluir:
+## Observações importantes
 
-* Stack completa com Grafana
-* Promtail para logs da aplicação
-* Monitoramento com dashboards
-
-Quer que eu monte esse próximo passo pra você?
-
+* O volume `mysql_data` mantém os dados do MySQL entre reinicializações.
+* Se clonar o projeto em outro PC, será necessário copiar/importar o dump, ou usar `docker-compose down -v` para inicializar o volume e importar automaticamente.
+* Não é necessário rebuildar a imagem Docker se apenas estiver importando dados.
