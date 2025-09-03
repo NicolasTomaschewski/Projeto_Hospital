@@ -1,16 +1,19 @@
 FROM php:8.2-apache
 
-# Instala mysqli
-RUN docker-php-ext-install mysqli
+# Instala extensões necessárias
+RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Copia os arquivos do projeto para o container
+# Ativa mod_rewrite
+RUN a2enmod rewrite
+
+# Copia configuração personalizada do Apache
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
+
+# Copia os arquivos do projeto
 COPY . /var/www/html/
 
-# Permissões corretas
+# Permissões
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
-
-# Ativa mod_rewrite (se precisar de URLs amigáveis)
-RUN a2enmod rewrite
 
 EXPOSE 80

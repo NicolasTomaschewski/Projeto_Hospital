@@ -1,11 +1,11 @@
 <?php 
 session_start();
 
-// Configurações de conexão com o banco de dados
-$servername = "db";           // Nome do serviço MySQL no Docker
-$username = "root";
-$password = "rootpassword";   // mesma senha do docker-compose
-$dbname = "projeto_hospital";
+// Configurações de conexão (pegando das variáveis de ambiente)
+$servername = getenv("DB_HOST") ?: "db";
+$username   = getenv("DB_USER") ?: "root";
+$password   = getenv("DB_PASSWORD") ?: "rootpassword";
+$dbname     = getenv("DB_NAME") ?: "projeto_hospital";
 
 // Função para aguardar o MySQL estar pronto
 $max_attempts = 15;
